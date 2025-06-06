@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Transporte IG
 
-## Getting Started
+Aplicação web para consulta de horários de transportes intermunicipais de Igreja Nova para outros municípios.
 
-First, run the development server:
+## ✨ Funcionalidades
+
+- Consulta de horários de ônibus (manhã, tarde, sábado)
+- Visualização dos pontos de saída e destino
+- Contato rápido com motoristas via WhatsApp
+- Layout responsivo e moderno
+
+## 🚀 Tecnologias
+
+- [Next.js](https://nextjs.org/) 
+- [React](https://react.dev/) 
+- [Tailwind CSS](https://tailwindcss.com/) 
+- [TypeScript](https://www.typescriptlang.org/)
+- [React Icons](https://react-icons.github.io/react-icons/)
+
+## 📦 Instalação
+
+Clone o repositório e instale as dependências:
+
+```bash
+git clone https://github.com/seu-usuario/transporte-ig.git
+cd transporte-ig
+npm install
+```
+
+## 🏃 Como rodar
+
+Inicie o servidor de desenvolvimento:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abra [http://localhost:3000](http://localhost:3000) no navegador para ver o resultado.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📁 Estrutura do Projeto
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+  app/
+    layout.tsx
+    page.tsx
+    globals.css
+  components/
+    Header/
+    Section1/
+    Section2/
+    Section3/
+    ui/
+      TransportCard.tsx
+public/
+  Assets/
+    logos_lateral.png
+    igrejanova.jpg
+    Onibus.svg
+    Route.svg
+```
 
-## Learn More
+## 📝 Personalização
 
-To learn more about Next.js, take a look at the following resources:
+- Para alterar os horários, edite o arquivo [`Section3/index.tsx`](src/components/Section3/index.tsx).
+- Para atualizar contatos dos motoristas, modifique o array `stations` no mesmo arquivo.
+- Imagens e logos ficam em `public/Assets`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📄 Licença
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Este projeto é open-source, sinta-se livre para usar e contribuir!
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Feito por João Paulo Marinho Santos
