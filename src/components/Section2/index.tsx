@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import TransportCard from "../ui/TransportCard";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 const stations = [
   { name: "Gonçalo", whatsappLink: "https://wa.me/5511999999999" },
@@ -187,7 +187,7 @@ function Section2() {
     return now.getHours() * 60 + now.getMinutes();
   };
 
-  const getBusStatus = (departureTime: string, busId: string): BusStatus => {
+  const getBusStatus = useCallback((departureTime: string): BusStatus => {
     const currentMinutes = getCurrentTimeInMinutes();
     const departureMinutes = timeToMinutes(departureTime);
     const timeDiff = currentMinutes - departureMinutes;
@@ -201,7 +201,7 @@ function Section2() {
     } else {
       return "finished";
     }
-  };
+  }, []);
 
   const getStatusText = (
     status: BusStatus
@@ -289,7 +289,7 @@ function Section2() {
 
       const statuses = allBuses.map((bus) => ({
         id: bus.id,
-        status: getBusStatus(bus.time, bus.id),
+        status: getBusStatus(bus.time),
       }));
 
       setBusStatuses(statuses);
@@ -299,7 +299,7 @@ function Section2() {
     const timer = setInterval(updateBusStatuses, 60000);
 
     return () => clearInterval(timer);
-  }, [currentTime, selectedDestination]);
+  }, [currentTime, selectedDestination, getBusStatus]);
 
   const nextBus = getNextBus();
   const currentSchedule = selectedDestination ? transportScheduleByDestination[selectedDestination] : null;
