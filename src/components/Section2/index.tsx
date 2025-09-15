@@ -10,7 +10,6 @@ const stations = [
   { name: "Zé Doninha", whatsappLink: "https://wa.me/5511777777777" },
 ];
 
-// Horários organizados por destino
 const transportScheduleByDestination = {
   penedo: {
     manha: [
@@ -150,7 +149,8 @@ const destinations = [
 ];
 
 function Section2() {
-  const [selectedDestination, setSelectedDestination] = useState<Destination | null>(null);
+  const [selectedDestination, setSelectedDestination] =
+    useState<Destination | null>(null);
   const [activeDrawer, setActiveDrawer] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [busStatuses, setBusStatuses] = useState<BusStatusInfo[]>([]);
@@ -162,9 +162,8 @@ function Section2() {
 
   const handleDestinationChange = (destination: Destination) => {
     setIsLoading(true);
-    setActiveDrawer(null); // Fecha gavetas abertas
-    
-    // Simula carregamento por 800ms
+    setActiveDrawer(null);
+
     setTimeout(() => {
       setSelectedDestination(destination);
       setIsLoading(false);
@@ -229,35 +228,36 @@ function Section2() {
 
     let allBuses: { time: string; period: string; destination: string }[] = [];
 
-    // Busca em todos os destinos
-    Object.entries(transportScheduleByDestination).forEach(([dest, schedule]) => {
-      if (!isWeekend || currentDay === 6) {
-        if (currentDay === 6) {
-          allBuses = [
-            ...allBuses,
-            ...schedule.sabado.map((bus) => ({
-              time: bus.time,
-              period: "sábado",
-              destination: dest,
-            })),
-          ];
-        } else {
-          allBuses = [
-            ...allBuses,
-            ...schedule.manha.map((bus) => ({
-              time: bus.time,
-              period: "manhã",
-              destination: dest,
-            })),
-            ...schedule.tarde.map((bus) => ({
-              time: bus.time,
-              period: "tarde",
-              destination: dest,
-            })),
-          ];
+    Object.entries(transportScheduleByDestination).forEach(
+      ([dest, schedule]) => {
+        if (!isWeekend || currentDay === 6) {
+          if (currentDay === 6) {
+            allBuses = [
+              ...allBuses,
+              ...schedule.sabado.map((bus) => ({
+                time: bus.time,
+                period: "sábado",
+                destination: dest,
+              })),
+            ];
+          } else {
+            allBuses = [
+              ...allBuses,
+              ...schedule.manha.map((bus) => ({
+                time: bus.time,
+                period: "manhã",
+                destination: dest,
+              })),
+              ...schedule.tarde.map((bus) => ({
+                time: bus.time,
+                period: "tarde",
+                destination: dest,
+              })),
+            ];
+          }
         }
       }
-    });
+    );
 
     const nextBuses = allBuses
       .filter((bus) => timeToMinutes(bus.time) > currentMinutes)
@@ -266,7 +266,6 @@ function Section2() {
     return nextBuses[0] || null;
   };
 
-  // Atualiza o tempo a cada minuto
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
@@ -275,12 +274,12 @@ function Section2() {
     return () => clearInterval(timer);
   }, []);
 
-  // Atualiza os status dos ônibus
   useEffect(() => {
     if (!selectedDestination) return;
 
     const updateBusStatuses = () => {
-      const currentSchedule = transportScheduleByDestination[selectedDestination];
+      const currentSchedule =
+        transportScheduleByDestination[selectedDestination];
       const allBuses = [
         ...currentSchedule.manha,
         ...currentSchedule.tarde,
@@ -302,252 +301,530 @@ function Section2() {
   }, [currentTime, selectedDestination, getBusStatus]);
 
   const nextBus = getNextBus();
-  const currentSchedule = selectedDestination ? transportScheduleByDestination[selectedDestination] : null;
-  const selectedDestinationInfo = selectedDestination ? destinations.find(d => d.key === selectedDestination) : null;
+  const currentSchedule = selectedDestination
+    ? transportScheduleByDestination[selectedDestination]
+    : null;
+  const selectedDestinationInfo = selectedDestination
+    ? destinations.find((d) => d.key === selectedDestination)
+    : null;
 
   return (
-    <main className="flex flex-col items-center justify-center p-6 lg:p-10">
-
-      {/* Status em Tempo Real */}
-      <div className="w-full max-w-4xl mb-8 bg-white rounded-lg shadow-lg p-6">
-        <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-          🕐 Status em Tempo Real
-        </h2>
-        <div className="text-center">
-          <p className="text-lg text-[#0F172A] mb-2">
-            Agora são{" "}
-            <span className="font-bold text-[#EA580C]">
-              {currentTime.toLocaleTimeString("pt-BR", {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </span>
-          </p>
-          {nextBus ? (
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <p className="text-lg font-semibold text-[#EA580C]">
-                🚌 Próximo ônibus: {nextBus.time} ({nextBus.period}) - {nextBus.destination.toUpperCase()}
+    <main className="flex flex-col items-center justify-center p-6 lg:p-10 max-w-7xl mx-auto">
+      <div className="hidden lg:flex w-full gap-8 mb-8">
+        <div className="w-1/3 space-y-6">
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+              🕐 Status em Tempo Real
+            </h2>
+            <div className="text-center">
+              <p className="text-lg text-[#0F172A] mb-2">
+                Agora são{" "}
+                <span className="font-bold text-[#EA580C] text-2xl">
+                  {currentTime.toLocaleTimeString("pt-BR", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
               </p>
+              {nextBus ? (
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <p className="text-sm font-semibold text-[#EA580C]">
+                    🚌 Próximo: {nextBus.time}
+                  </p>
+                  <p className="text-xs text-gray-600">
+                    {nextBus.period} - {nextBus.destination.toUpperCase()}
+                  </p>
+                </div>
+              ) : (
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-600">
+                    Não há mais ônibus hoje
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <h2 className="text-lg font-bold text-gray-800 mb-4 text-center">
+              Selecione o destino:
+            </h2>
+            <div className="space-y-3">
+              {destinations.map((destination) => (
+                <button
+                  key={destination.key}
+                  onClick={() => handleDestinationChange(destination.key)}
+                  disabled={isLoading}
+                  className={`w-full p-3 rounded-lg text-white font-bold transition-all duration-200 transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 ${
+                    selectedDestination === destination.key
+                      ? `${destination.color} shadow-lg scale-105`
+                      : `${destination.color} opacity-90 ${destination.hoverColor}`
+                  }`}
+                >
+                  <div className="flex items-center justify-center gap-3">
+                    <span className="text-xl">{destination.icon}</span>
+                    <span>{destination.name}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Route Display */}
+          {selectedDestination && selectedDestinationInfo && !isLoading && (
+            <div className="bg-white rounded-lg shadow-lg p-6 animate-fadeIn">
+              <div className="flex items-center justify-center gap-4">
+                <div className="flex flex-col items-center">
+                  <Image
+                    src="/Assets/Onibus.svg"
+                    alt="Ônibus"
+                    width={30}
+                    height={30}
+                    priority
+                  />
+                  <div className="text-center mt-2">
+                    <span className="text-xs font-light text-gray-600">
+                      Saída
+                    </span>
+                    <p className="font-bold text-black text-sm">Igreja Nova</p>
+                  </div>
+                </div>
+
+                <Image
+                  src="/Assets/Route.svg"
+                  alt="Rota"
+                  width={30}
+                  height={30}
+                  priority
+                />
+
+                <div className="flex flex-col items-center">
+                  <span className="text-2xl">
+                    {selectedDestinationInfo.icon}
+                  </span>
+                  <div className="text-center mt-2">
+                    <span className="text-xs font-light text-gray-600">
+                      Destino
+                    </span>
+                    <p className="font-bold text-black text-sm">
+                      {selectedDestinationInfo.name}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Right Column - Schedules */}
+        <div className="flex-1">
+          {isLoading ? (
+            <div className="bg-white rounded-lg shadow-lg p-8">
+              <div className="flex flex-col items-center justify-center">
+                <div className="relative">
+                  <div className="w-16 h-16 border-4 border-gray-200 border-t-[#FFA300] rounded-full animate-spin"></div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-2xl animate-bounce">🚌</span>
+                  </div>
+                </div>
+                <div className="mt-6 text-center">
+                  <h3 className="text-xl font-bold text-gray-800 mb-2">
+                    Carregando horários...
+                  </h3>
+                  <p className="text-gray-600">
+                    Buscando as melhores rotas para você
+                  </p>
+                </div>
+                <div className="flex space-x-1 mt-4">
+                  <div className="w-2 h-2 bg-[#FFA300] rounded-full animate-pulse"></div>
+                  <div
+                    className="w-2 h-2 bg-[#FFA300] rounded-full animate-pulse"
+                    style={{ animationDelay: "0.2s" }}
+                  ></div>
+                  <div
+                    className="w-2 h-2 bg-[#FFA300] rounded-full animate-pulse"
+                    style={{ animationDelay: "0.4s" }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+          ) : !selectedDestination ? (
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg p-12 text-center h-full flex flex-col justify-center">
+              <div className="mb-6">
+                <span className="text-8xl">🚌</span>
+              </div>
+              <h3 className="text-3xl font-bold text-gray-800 mb-4">
+                Escolha seu destino
+              </h3>
+              <p className="text-gray-600 text-xl mb-8">
+                Selecione um destino ao lado para ver os horários
+              </p>
+              <div className="flex justify-center gap-12 text-gray-500">
+                <div className="flex flex-col items-center gap-2">
+                  <span className="text-3xl">🏰</span>
+                  <span>Penedo</span>
+                </div>
+                <div className="flex flex-col items-center gap-2">
+                  <span className="text-3xl">🏢</span>
+                  <span>Arapiraca</span>
+                </div>
+                <div className="flex flex-col items-center gap-2">
+                  <span className="text-3xl">🏖️</span>
+                  <span>Maceió</span>
+                </div>
+              </div>
             </div>
           ) : (
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-lg text-gray-600">Não há mais ônibus hoje</p>
+            <div className="space-y-6 animate-slideUp">
+              {periods.map((period, index) => (
+                <div
+                  key={period.key}
+                  className="bg-white rounded-lg shadow-lg overflow-hidden animate-fadeIn"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  <button
+                    onClick={() => toggleDrawer(period.key)}
+                    className={`w-full p-4 flex items-center justify-between ${period.color} text-white hover:opacity-90 transition-opacity`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">{period.icon}</span>
+                      <h2 className="font-bold text-lg">{period.label}</h2>
+                      <span className="text-sm opacity-80">
+                        (
+                        {currentSchedule &&
+                          currentSchedule[
+                            period.key as keyof typeof currentSchedule
+                          ].length}{" "}
+                        horários)
+                      </span>
+                    </div>
+                    <div
+                      className={`transform transition-transform duration-200 ${
+                        activeDrawer === period.key ? "rotate-180" : ""
+                      }`}
+                    >
+                      <svg
+                        className="w-6 h-6"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </div>
+                  </button>
+
+                  <div
+                    className={`transition-all duration-300 ease-in-out ${
+                      activeDrawer === period.key
+                        ? "max-h-[1000px] opacity-100"
+                        : "max-h-0 opacity-0"
+                    } overflow-hidden`}
+                  >
+                    <div className="p-4 bg-gray-50">
+                      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                        {currentSchedule &&
+                          currentSchedule[
+                            period.key as keyof typeof currentSchedule
+                          ].map((transport) => {
+                            const busStatus = busStatuses.find(
+                              (status) => status.id === transport.id
+                            );
+                            const statusInfo = busStatus
+                              ? getStatusText(busStatus.status)
+                              : null;
+
+                            return (
+                              <div key={transport.id} className="relative">
+                                <TransportCard
+                                  title={transport.title}
+                                  time={transport.time}
+                                  route={transport.route}
+                                  stations={stations}
+                                />
+                                {statusInfo && (
+                                  <div
+                                    className={`absolute -top-2 -right-2 px-2 py-1 rounded-full text-xs font-medium bg-white border-2 border-gray-100 shadow-sm ${statusInfo.color} z-10`}
+                                  >
+                                    <span className="mr-1 text-xs">
+                                      {statusInfo.icon}
+                                    </span>
+                                    <span className="text-xs">
+                                      {statusInfo.text}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>
       </div>
 
-      <div className="w-full max-w-4xl mb-8">
-        <h2 className="text-lg font-bold text-gray-800 mb-4 text-center">
-          Selecione o destino:
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {destinations.map((destination) => (
-            <button
-              key={destination.key}
-              onClick={() => handleDestinationChange(destination.key)}
-              disabled={isLoading}
-              className={`p-4 rounded-lg text-white font-bold transition-all duration-200 transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 ${
-                selectedDestination === destination.key
-                  ? `${destination.color} shadow-lg scale-105`
-                  : `${destination.color} opacity-90 ${destination.hoverColor}`
-              }`}
-            >
-              <div className="flex items-center justify-center gap-3">
-                <span className="text-2xl">{destination.icon}</span>
-                <span className="text-lg">{destination.name}</span>
+      {/* Mobile Layout - Original */}
+      <div className="lg:hidden w-full">
+        {/* Status em Tempo Real */}
+        <div className="w-full max-w-4xl mb-8 bg-white rounded-lg shadow-lg p-6">
+          <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+            🕐 Status em Tempo Real
+          </h2>
+          <div className="text-center">
+            <p className="text-lg text-[#0F172A] mb-2">
+              Agora são{" "}
+              <span className="font-bold text-[#EA580C]">
+                {currentTime.toLocaleTimeString("pt-BR", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </span>
+            </p>
+            {nextBus ? (
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <p className="text-lg font-semibold text-[#EA580C]">
+                  🚌 Próximo ônibus: {nextBus.time} ({nextBus.period}) -{" "}
+                  {nextBus.destination.toUpperCase()}
+                </p>
               </div>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Loading Animation */}
-      {isLoading && (
-        <div className="w-full max-w-4xl mb-8 bg-white rounded-lg shadow-lg p-8">
-          <div className="flex flex-col items-center justify-center">
-            {/* Spinner */}
-            <div className="relative">
-              <div className="w-16 h-16 border-4 border-gray-200 border-t-[#FFA300] rounded-full animate-spin"></div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-2xl animate-bounce">🚌</span>
+            ) : (
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-lg text-gray-600">Não há mais ônibus hoje</p>
               </div>
-            </div>
-            
-            {/* Loading Text */}
-            <div className="mt-6 text-center">
-              <h3 className="text-xl font-bold text-gray-800 mb-2">
-                Carregando horários...
-              </h3>
-              <p className="text-gray-600">
-                Buscando as melhores rotas para você
-              </p>
-            </div>
-
-            {/* Loading Dots */}
-            <div className="flex space-x-1 mt-4">
-              <div className="w-2 h-2 bg-[#FFA300] rounded-full animate-pulse"></div>
-              <div className="w-2 h-2 bg-[#FFA300] rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-              <div className="w-2 h-2 bg-[#FFA300] rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
-            </div>
+            )}
           </div>
         </div>
-      )}
 
-      {/* Informações da Rota - só aparece quando tem destino selecionado e não está carregando */}
-      {selectedDestination && selectedDestinationInfo && !isLoading && (
-        <article className="flex items-center justify-center gap-6 lg:gap-12 p-4 mb-8 bg-white rounded-lg shadow-sm animate-fadeIn">
-          <div className="flex items-center gap-3">
+        <div className="w-full max-w-4xl mb-8">
+          <h2 className="text-lg font-bold text-gray-800 mb-4 text-center">
+            Selecione o destino:
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {destinations.map((destination) => (
+              <button
+                key={destination.key}
+                onClick={() => handleDestinationChange(destination.key)}
+                disabled={isLoading}
+                className={`p-4 rounded-lg text-white font-bold transition-all duration-200 transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 ${
+                  selectedDestination === destination.key
+                    ? `${destination.color} shadow-lg scale-105`
+                    : `${destination.color} opacity-90 ${destination.hoverColor}`
+                }`}
+              >
+                <div className="flex items-center justify-center gap-3">
+                  <span className="text-2xl">{destination.icon}</span>
+                  <span className="text-lg">{destination.name}</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Rest of mobile layout... */}
+        {isLoading && (
+          <div className="w-full max-w-4xl mb-8 bg-white rounded-lg shadow-lg p-8">
+            <div className="flex flex-col items-center justify-center">
+              <div className="relative">
+                <div className="w-16 h-16 border-4 border-gray-200 border-t-[#FFA300] rounded-full animate-spin"></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-2xl animate-bounce">🚌</span>
+                </div>
+              </div>
+              <div className="mt-6 text-center">
+                <h3 className="text-xl font-bold text-gray-800 mb-2">
+                  Carregando horários...
+                </h3>
+                <p className="text-gray-600">
+                  Buscando as melhores rotas para você
+                </p>
+              </div>
+              <div className="flex space-x-1 mt-4">
+                <div className="w-2 h-2 bg-[#FFA300] rounded-full animate-pulse"></div>
+                <div
+                  className="w-2 h-2 bg-[#FFA300] rounded-full animate-pulse"
+                  style={{ animationDelay: "0.2s" }}
+                ></div>
+                <div
+                  className="w-2 h-2 bg-[#FFA300] rounded-full animate-pulse"
+                  style={{ animationDelay: "0.4s" }}
+                ></div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {selectedDestination && selectedDestinationInfo && !isLoading && (
+          <article className="flex items-center justify-center gap-6 lg:gap-12 p-4 mb-8 bg-white rounded-lg shadow-sm animate-fadeIn">
+            <div className="flex items-center gap-3">
+              <Image
+                src="/Assets/Onibus.svg"
+                alt="Ônibus"
+                width={40}
+                height={40}
+                className="lg:w-12 lg:h-12"
+                priority
+              />
+              <div className="flex flex-col text-center">
+                <span className="text-xs font-light text-gray-600">Saída</span>
+                <h2 className="font-bold text-black text-sm lg:text-base">
+                  Igreja Nova
+                </h2>
+              </div>
+            </div>
+
             <Image
-              src="/Assets/Onibus.svg"
-              alt="Ônibus"
+              src="/Assets/Route.svg"
+              alt="Rota"
               width={40}
               height={40}
               className="lg:w-12 lg:h-12"
               priority
             />
-            <div className="flex flex-col text-center">
-              <span className="text-xs font-light text-gray-600">Saída</span>
-              <h2 className="font-bold text-black text-sm lg:text-base">
-                Igreja Nova
-              </h2>
+
+            <div className="flex items-center gap-3">
+              <div className="flex flex-col text-center">
+                <span className="text-xs font-light text-gray-600">
+                  Destino
+                </span>
+                <h2 className="font-bold text-black text-sm lg:text-base flex items-center gap-2">
+                  {selectedDestinationInfo.icon} {selectedDestinationInfo.name}
+                </h2>
+              </div>
+            </div>
+          </article>
+        )}
+
+        {!selectedDestination && !isLoading ? (
+          <div className="w-full max-w-4xl bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg p-8 text-center">
+            <div className="mb-6">
+              <span className="text-6xl">🚌</span>
+            </div>
+            <h3 className="text-2xl font-bold text-gray-800 mb-4">
+              Escolha seu destino
+            </h3>
+            <p className="text-gray-600 text-lg mb-6">
+              Selecione um dos destinos acima para ver os horários de partida
+            </p>
+            <div className="flex justify-center gap-8 text-sm text-gray-500">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🏰</span>
+                <span>Penedo</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🏢</span>
+                <span>Arapiraca</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🏖️</span>
+                <span>Maceió</span>
+              </div>
             </div>
           </div>
-
-          <Image
-            src="/Assets/Route.svg"
-            alt="Rota"
-            width={40}
-            height={40}
-            className="lg:w-12 lg:h-12"
-            priority
-          />
-
-          <div className="flex items-center gap-3">
-            <div className="flex flex-col text-center">
-              <span className="text-xs font-light text-gray-600">Destino</span>
-              <h2 className="font-bold text-black text-sm lg:text-base flex items-center gap-2">
-                {selectedDestinationInfo.icon} {selectedDestinationInfo.name}
-              </h2>
-            </div>
-          </div>
-        </article>
-      )}
-
-      {/* Mensagem inicial, Loading ou Horários por Período */}
-      {!selectedDestination && !isLoading ? (
-        <div className="w-full max-w-4xl bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg p-8 text-center">
-          <div className="mb-6">
-            <span className="text-6xl">🚌</span>
-          </div>
-          <h3 className="text-2xl font-bold text-gray-800 mb-4">
-            Escolha seu destino
-          </h3>
-          <p className="text-gray-600 text-lg mb-6">
-            Selecione um dos destinos acima para ver os horários de partida
-          </p>
-          <div className="flex justify-center gap-8 text-sm text-gray-500">
-            <div className="flex items-center gap-2">
-              <span className="text-lg">🏰</span>
-              <span>Penedo</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-lg">🏢</span>
-              <span>Arapiraca</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-lg">🏖️</span>
-              <span>Maceió</span>
-            </div>
-          </div>
-        </div>
-      ) : selectedDestination && !isLoading ? (
-        <div className="w-full max-w-4xl space-y-4 animate-slideUp">
-          {periods.map((period, index) => (
-            <div
-              key={period.key}
-              className="bg-white rounded-lg shadow-lg overflow-hidden animate-fadeIn"
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
-              {/* Header da Gaveta */}
-              <button
-                onClick={() => toggleDrawer(period.key)}
-                className={`w-full p-4 flex items-center justify-between ${period.color} text-white hover:opacity-90 transition-opacity`}
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">{period.icon}</span>
-                  <h2 className="font-bold text-lg">{period.label}</h2>
-                  <span className="text-sm opacity-80">
-                    ({currentSchedule && currentSchedule[period.key as keyof typeof currentSchedule].length} horários)
-                  </span>
-                </div>
-                <div
-                  className={`transform transition-transform duration-200 ${
-                    activeDrawer === period.key ? "rotate-180" : ""
-                  }`}
-                >
-                  <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </div>
-              </button>
-
-              {/* Conteúdo da Gaveta */}
+        ) : selectedDestination && !isLoading ? (
+          <div className="w-full max-w-4xl space-y-4 animate-slideUp">
+            {periods.map((period, index) => (
               <div
-                className={`transition-all duration-300 ease-in-out ${
-                  activeDrawer === period.key
-                    ? "max-h-[1000px] opacity-100"
-                    : "max-h-0 opacity-0"
-                } overflow-hidden`}
+                key={period.key}
+                className="bg-white rounded-lg shadow-lg overflow-hidden animate-fadeIn"
+                style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className="p-4 bg-gray-50">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {currentSchedule && currentSchedule[period.key as keyof typeof currentSchedule].map((transport) => {
-                      const busStatus = busStatuses.find(
-                        (status) => status.id === transport.id
-                      );
-                      const statusInfo = busStatus
-                        ? getStatusText(busStatus.status)
-                        : null;
+                <button
+                  onClick={() => toggleDrawer(period.key)}
+                  className={`w-full p-4 flex items-center justify-between ${period.color} text-white hover:opacity-90 transition-opacity`}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">{period.icon}</span>
+                    <h2 className="font-bold text-lg">{period.label}</h2>
+                    <span className="text-sm opacity-80">
+                      (
+                      {currentSchedule &&
+                        currentSchedule[
+                          period.key as keyof typeof currentSchedule
+                        ].length}{" "}
+                      horários)
+                    </span>
+                  </div>
+                  <div
+                    className={`transform transition-transform duration-200 ${
+                      activeDrawer === period.key ? "rotate-180" : ""
+                    }`}
+                  >
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </div>
+                </button>
 
-                      return (
-                        <div key={transport.id} className="relative">
-                          <TransportCard
-                            title={transport.title}
-                            time={transport.time}
-                            route={transport.route}
-                            stations={stations}
-                          />
-                          {statusInfo && (
-                            <div
-                              className={`absolute -top-2 -right-2 px-2 py-1 rounded-full text-xs font-medium bg-white border-2 border-gray-100 shadow-sm ${statusInfo.color} z-10`}
-                            >
-                              <span className="mr-1 text-xs">
-                                {statusInfo.icon}
-                              </span>
-                              <span className="text-xs">{statusInfo.text}</span>
+                <div
+                  className={`transition-all duration-300 ease-in-out ${
+                    activeDrawer === period.key
+                      ? "max-h-[1000px] opacity-100"
+                      : "max-h-0 opacity-0"
+                  } overflow-hidden`}
+                >
+                  <div className="p-4 bg-gray-50">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {currentSchedule &&
+                        currentSchedule[
+                          period.key as keyof typeof currentSchedule
+                        ].map((transport) => {
+                          const busStatus = busStatuses.find(
+                            (status) => status.id === transport.id
+                          );
+                          const statusInfo = busStatus
+                            ? getStatusText(busStatus.status)
+                            : null;
+
+                          return (
+                            <div key={transport.id} className="relative">
+                              <TransportCard
+                                title={transport.title}
+                                time={transport.time}
+                                route={transport.route}
+                                stations={stations}
+                              />
+                              {statusInfo && (
+                                <div
+                                  className={`absolute -top-2 -right-2 px-2 py-1 rounded-full text-xs font-medium bg-white border-2 border-gray-100 shadow-sm ${statusInfo.color} z-10`}
+                                >
+                                  <span className="mr-1 text-xs">
+                                    {statusInfo.icon}
+                                  </span>
+                                  <span className="text-xs">
+                                    {statusInfo.text}
+                                  </span>
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
-                      );
-                    })}
+                          );
+                        })}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      ) : null}
+            ))}
+          </div>
+        ) : null}
+      </div>
 
       <style jsx>{`
         @keyframes fadeIn {
